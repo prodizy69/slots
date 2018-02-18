@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="rsscode" basedir="." default="default">
+    <!-- Common Properties -->
+    <property name="debug" value="on"/>
+    <property name="deploy.dir" value="./app"/>
+    <property name="deploy.web" value="./app/WEB-INF"/>
+    <property name="deploy.lib" value="./app/WEB-INF/lib"/>
+    <property name="source.web" value="./webapp"/>
+    <property name="build.out.dir" value="./build.out"/>
+    <property name="build.out.deploy" value="${build.out.dir}/deploy"/>
+
+    <!-- Main Properties -->
+    <property name="core.main.dir" value="./src"/>
+
+    <property name="build.core.dir" value="./build.main"/>
+    <property name="build.core.classes" value="${build.core.dir}/classes"/>
+    <property name="build.compile.lib" value="lib"/>
+
+
+
+    <property name="common.conf" value="${build.out.deploy}/conf/"/>
+    <property name="metainf.dir" value="${core.main.dir}/META-INF" />
+
+    <path id="project.class.main.path">
+        <filelist dir="lib">
+            <file name="asm-3.3.1.jar"/>
+            <file name="servlet-api.jar"/>
+            <file name="slf4j-api-1.7.10.jar"/>
+            <file name="dbpool-7.0-jdk7.jar"/>
+            <file name="jersey-bundle-1.14.jar"/>
+            <file name="jersey-json-1.9.1.jar"/>
+            <file name="log4j-1.2.16.jar"/>
+            <file name="mysql-connector-java-5.0.8-bin.jar"/>
+            <file name="tomcat-websocket.jar"/>
+            <file name="websocket-api.jar"/>
+            <file name="jackson-all-1.9.0.jar"/>
+            <file name="org.apache.commons.beanutils.jar"/>
+            <file name="javax.persistence.jar"/>
+        </filelist>
+
+    </path>
+
+    <target name="default" description="The default target used when ant is invoked without any arguments">
+        <antcall inheritAll="false" target="cleancompile.main"/>
+    </target>
+
+    <target name="cleancompile.main" depends="clean.main, main"
+            description="Removes all main build directories and recompiles the main java sources">
+
+        <copy todir="${deploy.lib}">
+            <filelist dir="lib">
+                <file name="asm-3.3.1.jar"/>
+                <file name="slf4j-api-1.7.10.jar"/>
+                <file name="dbpool-7.0-jdk7.jar"/>
+                <file name="jersey-bundle-1.14.jar"/>
+                <file name="jersey-json-1.9.1.jar"/>
+                <file name="log4j-1.2.16.jar"/>
+                <file name="mysql-connector-java-5.0.8-bin.jar"/>
+                <file name="jackson-all-1.9.0.jar"/>
+                <file name="org.apache.commons.beanutils.jar"/>
+                <file name="javax.persistence.jar"/>
+            </filelist>
+        </copy>
+
+
+
+    </target>
+
+    <target name="clean.main" description="Cleans up the main build and distribution directories">
+        <delete dir="${build.core.dir}"/>
+        <delete dir="${deploy.dir}"/>
+        <delete>
+            <fileset dir="lib" excludes="*.svn" includes="rss.jar"/>
+        </delete>
+    </target>
+
+    <target name="main" description="Creates a minimum distribution from the main classes of the module" depends="jars.main.core">
+
+    </target>
+
+    <target name="build.main.core" description="Builds the rss ">
+        <mkdir dir="${build.core.dir}"/>
+        <mkdir dir="${build.core.classes}"/>
+        <mkdir dir="${deploy.dir}"/>
+        <mkdir dir="${deploy.web}"/>
+        <mkdir dir="${deploy.lib}"/>
+        <mkdir dir="${build.out.dir}"/>
+        <mkdir dir="${build.out.deploy}"/>
+
+
+        <javac debug="${debug}" destdir="${build.core.classes}" srcdir="${core.main.dir}">
+            <classpath refid="project.class.main.path"/>
+        </javac>
+
+        <copy todir="${build.core.classes}">
+            <fileset dir="${core.main.dir}" includes="**/*.xml" excludes="*.java,*.class,*.svn"/>
+        </copy>
+    </target>
+
+    <target name="jars.main.core" description="Creates rss Jar" depends="build.main.core">
+        <jar basedir="${build.core.classes}" jarfile="lib/rss.jar" >
+        </jar>
+        <copy verbose="true" file="lib/rss.jar" todir="${deploy.lib}"/>
+        <copy todir="${deploy.dir}"  overwrite="true">
+            <fileset dir="${source.web}" includes="**"/>
+        </copy>
+    </target>
+
+
+    <target name="copy">
+        <copy todir="${deploy.dir}"  overwrite="true">
+            <fileset dir="${source.web}" includes="**"/>
+        </copy>
+    </target>
+</project>
